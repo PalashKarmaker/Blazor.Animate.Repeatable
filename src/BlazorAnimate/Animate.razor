@@ -1,4 +1,4 @@
-﻿@using System.Globalization
+@using System.Globalization
 @using Microsoft.Extensions.Options
 
 @if (_manuallyExecuted || IsManual == false)
@@ -40,8 +40,12 @@
 
     [Inject] private IOptionsSnapshot<AnimateOptions> _optionsAccessor { get; set; }
 
-    public void Run()
+    public void Run() =>_manuallyExecuted = true;
+
+    public async Task RunAsync()
     {
+        _manuallyExecuted = false;
+        await Task.Delay(50);
         _manuallyExecuted = true;
     }
     
@@ -50,36 +54,26 @@
         SetDefaults();
 
         if (!string.IsNullOrWhiteSpace(Animation?.Name))
-        {
             _animationName = Animation.Name;
-        }
 
         if (!string.IsNullOrWhiteSpace(Easing?.Name))
-        {
             _easingName = Easing.Name;
-        }
 
         SetDuration();
         SetDelay();
 
         if (Mirror != null)
-        {
             _mirror = Mirror.GetValueOrDefault().ToString().ToLowerInvariant();
-        }
 
         if (Once != null)
-        {
             _once = Once.GetValueOrDefault().ToString().ToLowerInvariant();
-        }
     }
 
     private void SetDefaults()
     {
         var options = GetOptions();
         if (options == null)
-        {
             return;
-        }
 
         _animationName = options.Animation?.Name ?? "";
         _easingName = options.Easing?.Name ?? "";
@@ -93,12 +87,8 @@
     {
         var result = Options;
         if (result != null)
-        {
             return result;
-        }
-
         result = _optionsAccessor.Get(OptionsName);
-
         return result;
     }
 
@@ -111,9 +101,7 @@
         }
 
         if (DurationMs != null)
-        {
             _duration = DurationMs.GetValueOrDefault().ToString();
-        }
     }
 
     private void SetDelay()
@@ -125,8 +113,6 @@
         }
 
         if (DelayMs != null)
-        {
             _delay = DelayMs.GetValueOrDefault().ToString();
-        }
     }
 }
